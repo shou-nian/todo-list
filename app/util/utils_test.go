@@ -46,7 +46,7 @@ func TestQueryAll(t *testing.T) {
 		if !ok {
 			slog.Error("interface revers type error")
 		}
-		if exp := QueryAll(data); reflect.DeepEqual(exp, expData) {
+		if exp := QueryAll(data); !reflect.DeepEqual(exp, expData) {
 			t.Errorf("Expected %s, got %s", v["expected"], exp)
 		}
 	}
