@@ -72,14 +72,6 @@ func (t *TodoManager) AddTodoList(context *gin.Context) {
 	)
 }
 
-// @Summary 获取用户信息
-// @Description 根据用户ID获取用户信息
-// @Tags Users
-// @Accept  json
-// @Produce  json
-// @Param id path int true "用户ID"
-// @Success 200 {object} UserResponse
-// @Router /users/{id} [get]
 func (t *TodoManager) QueryTodoList(context *gin.Context) {
 	if len(t.TodoMap) == 0 {
 		context.JSON(
