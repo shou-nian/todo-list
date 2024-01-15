@@ -7,6 +7,7 @@ import (
 	"github.com/riny/demo-go-gin/app/util"
 	"log/slog"
 	"net/http"
+	"sync"
 )
 
 type TodoListManagement interface {
@@ -18,6 +19,7 @@ type TodoListManagement interface {
 
 type TodoManager struct {
 	TodoMap map[string]string
+	mu      *sync.RWMutex
 }
 
 func New() *TodoManager {
@@ -62,6 +64,8 @@ func (t *TodoManager) AddTodoList(context *gin.Context) {
 		return
 	}
 	// 添加到todo列表中
+	t.mu.Lock()
+	defer t.mu.Unlock()
 	t.TodoMap[todo.TodoName] = "open"
 	context.JSON(
 		http.StatusOK,
@@ -87,6 +91,8 @@ func (t *TodoManager) QueryTodoList(context *gin.Context) {
 	queryName, ok := context.GetQuery("name")
 	if !ok {
 		// 如果未指定name，返回所有数据
+		t.mu.RLock()
+		defer t.mu.RUnlock()
 		context.JSON(
 			http.StatusOK,
 			gin.H{
@@ -109,6 +115,8 @@ func (t *TodoManager) QueryTodoList(context *gin.Context) {
 	}
 
 	// 返回满足查询条件的数据
+	t.mu.RLock()
+	defer t.mu.RUnlock()
 	context.JSON(
 		http.StatusOK,
 		gin.H{
@@ -153,6 +161,8 @@ func (t *TodoManager) UpdateTodoStatus(context *gin.Context) {
 	}
 
 	// 更新状态
+	t.mu.Lock()
+	defer t.mu.Unlock()
 	t.TodoMap[todo.TodoName] = util.ReverseStatus(t.TodoMap[todo.TodoName])
 	context.JSON(
 		http.StatusOK,
@@ -208,6 +218,8 @@ func (t *TodoManager) DeleteTodoList(context *gin.Context) {
 	}
 
 	// 删除todo list
+	t.mu.RLock()
+	defer t.mu.RUnlock()
 	delete(t.TodoMap, todo.TodoName)
 	context.JSON(
 		http.StatusOK,
